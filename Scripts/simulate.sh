@@ -34,4 +34,11 @@ java -jar FastqGenerator/ArtificialFastqGenerator.jar -O sim/read -R sim/mutated
 
 ./processSample.sh -r ${REF} -s sim/read.1.fastq -s sim/read.2.fastq -o sim
 
-./runVCs.sh -r ${REF} 
+mkdir sim/results
+./runVCs.sh -r ${REF} -b sim/alnFinal.bam -o sim/results
+
+DICT=$(echo "${REF%.*}").dict 
+
+./normAndCombine.sh -r ${REF} -v mutated.refseq2simseq.SNP.vcf -s ${DICT}
+
+python parseDiff.py sim/results sim/results/simMethodStats.csv
