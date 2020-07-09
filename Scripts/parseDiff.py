@@ -1,5 +1,3 @@
-#import sklearn as sk
-#from sklearn.metrics import confusion_matrix
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -62,14 +60,6 @@ def parseLog(diffFile):
  
 #TO-DO: read cmd line arguments
 def main():
-  
-  #parser = argparse.ArgumentParser(description = "Extract statistics from log files in the path and computes sensitivity, ppv, and F1 score")
-  #parser.add_argument('pathPrefix', metavar = '-p', nargs=1, action='store', help='path to directory containing log files')
-  #parser.add_argument('output', metavar = '-o', nargs=1, action='store', help = 'file to write output table to. output table contains 4 columns: method name, sensitivity, ppv, and F1')
-  #args = parser.parse_args()  
-  #pathPrefix = args.pathPrefix
-  
-  #output = args.output
   
   args = sys.argv
   pathPrefix = args[1]
