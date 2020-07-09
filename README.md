@@ -1,9 +1,13 @@
 # reads-to-variants
 Bioinformatics pipeline that uses the results from SNP calls on simulated data to select optimal combination of variant callers (from GATK, Free Bayes, and Vardict) for a given data set. Performs ensemble calling on data set using those callers. 
 
+Required Dependencies:
+
+1. anaconda 
 Installation:
 
-git clone
+git clone https://github.com/luisacusick/reads-to-variants.git
+conda env create -f environment.yml 
 
 Workflow:
 
