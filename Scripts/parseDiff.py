@@ -1,10 +1,15 @@
-import sklearn as sk
-from sklearn.metrics import confusion_matrix
+#import sklearn as sk
+#from sklearn.metrics import confusion_matrix
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import glob 
 import os
+import argparse
+import sys
+
+#plt.switch_backend('agg') #necessary for graphic creation if working on cluster 
 
 def computeSens(tp, fn):
   sens= float(tp)/(float(tp)+float(fn))
@@ -23,8 +28,8 @@ def extractInt(line):
 #ppv, sens, and pointNames are vectors, title is a string
 def plotDiff(ppv, sens, pointNames, figName='/pylon5/eb5phrp/luc32/methods.png'):
   print('Called plotDiff')
-  #assert len(ppv) == len(sens), 'ppv and sensitivity are not the same length'
-  #assert len(ppv) == len(labels), 'coord len is not equal to labels'
+  assert len(ppv) == len(sens), 'ppv and sensitivity are not the same length'
+  assert len(ppv) == len(labels), 'coord len is not equal to labels'
   
   for i, label in enumerate(pointNames):
     plt.scatter(ppv[i], sens[i])
@@ -57,17 +62,29 @@ def parseLog(diffFile):
  
 #TO-DO: read cmd line arguments
 def main():
-  pathPrefix = 'MedTrunSimulations_Short2/2/'
-  methods = ''
-  logFiles = glob.glob(pathPrefix + '*.log')
   
+  #parser = argparse.ArgumentParser(description = "Extract statistics from log files in the path and computes sensitivity, ppv, and F1 score")
+  #parser.add_argument('pathPrefix', metavar = '-p', nargs=1, action='store', help='path to directory containing log files')
+  #parser.add_argument('output', metavar = '-o', nargs=1, action='store', help = 'file to write output table to. output table contains 4 columns: method name, sensitivity, ppv, and F1')
+  #args = parser.parse_args()  
+  #pathPrefix = args.pathPrefix
+  
+  #output = args.output
+  
+  args = sys.argv
+  pathPrefix = args[1]
+  output = args[2]
+  
+  methods = ''
+  logFiles = glob.glob(pathPrefix + '/*.log')
+   
   for file in logFiles:
     print(file)
     filename, file_extension = os.path.splitext(os.path.basename(file))
     row = parseLog(file)
     methods = methods + filename + ' ' + str(row[0]) + ' ' + str(row[1]) + ' ' + str(row[2]) + '\n'
   
-  outF = open('methodSummary2.csv', 'w')
+  outF = open(output, 'w')
   outF.writelines('Method' + ' 	Sens' + ' PPV' + ' F1'+ '\n')
   outF.writelines(methods)
   outF.close()

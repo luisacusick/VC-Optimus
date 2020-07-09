@@ -58,15 +58,14 @@ fi
 #Align reads to reference#
 
 #Index the reference:
-bwa index ${REF}
-bwa mem ${REF} ${SAMPLES[1]} ${SAMPLES[2]} -t 8 -M | samtools sort -@8 -o ${OUTPATH}/aln.bam - 
-#rm ${OUTPATH}/aln.sam #remove sam file 
+#bwa index ${REF} #this step included in processReference.sh
+bwa mem ${REF} ${SAMPLES[0]} ${SAMPLES[1]} -t 8 -M -o ${OUTPATH}/aln.sam
+samtools sort ${OUTPATH}/aln.sam -o ${OUTPATH}/aln.bam -@ 8
+
+rm ${OUTPATH}/aln.sam #remove sam file 
 
 #Insert read group naming
 picard AddOrReplaceReadGroups INPUT=${OUTPATH}/aln.bam OUTPUT=${OUTPATH}/alnRG.bam RGID=${ID} RGLB=${RGLB} RGPL=${RGPL} RGPU=${RGPU} RGSM=${SAMPLE_NAME}
-
-#Sort bam file
-#samtools sort ${OUTPATH}/alnRG.bam -o ${OUTPATH}/alnSort.bam
 
 #Mark duplicates
 picard MarkDuplicates I=${OUTPATH}/alnRG.bam O=${OUTPATH}/alnFinal.bam M=${OUTPATH}/marked_dup_metrics.txt
@@ -75,11 +74,8 @@ samtools index ${OUTPATH}/alnFinal.bam #creates .bam.bai file in input directory
 echo "Created alnFinal.bam in output directory"
 
 #Recalibrate base scores
-gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} -O ${OUTPATH}/recal_data.table
+#gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} --known-sites /pylon5/eb5phrp/luc32/MedTrunSimulations_3/mutated.refseq2simseq.SNP.vcf -O ${OUTPATH}/recal_data.table
+
+#gatk/gatk ApplyBQSR -R ${REF} -I ${OUTPATH}/alnFinal.bam --bqsr-recal-file ${OUTPATH}/recal_data.table -O ${OUTPATH}/alnFinalRecal.bam 
 
 picard ValidateSamFile I=${OUTPATH}/alnFinal.bam MODE=SUMMARY
-
-#These steps are necessary for each referenece for variant calling, but don't want to perform them more than once per reference
-#PREFIX=$(echo "${REF}" | cut -f 1 -d '.')
-#picard CreateSequenceDictionary R=${REF} O=${PREFIX}.dict #create reference dictionary
-#samtools faidx ${REF} #index reference  
