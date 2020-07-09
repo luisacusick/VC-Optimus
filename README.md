@@ -4,6 +4,8 @@ Bioinformatics pipeline that uses the results from SNP calls on simulated data t
 Required Dependencies:
 
 1. anaconda 
+2. gatk 
+
 Installation:
 
 git clone https://github.com/luisacusick/reads-to-variants.git
