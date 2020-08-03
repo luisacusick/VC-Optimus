@@ -13,6 +13,7 @@ VC-optimus makes use of the following tools: <INSERT_LIST_WITH_REFS>
 ```bash
 git clone https://github.com/luisacusick/reads-to-variants.git
 cd reads-to-variants/
+chmod 755 Scripts/*
 conda env create -f environment.yml
 source activate snvCalling
 ```
