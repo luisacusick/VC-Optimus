@@ -1,35 +1,39 @@
 # VC-optimus: Variant Calling Optimization Using Simulations
 Population genetic analyses typically begin by identifying genetic variants in a sequenced population using any one of several variant calling tools. However, the performance of any single tool is sensitive to the particularities of individual datasets, potentially resulting in the non-optimal recovery of true variants. VC-optimus is  pipeline that enables users to make an *a priori* informed choice about what tool, or combinations of tools, are best suited for analyzing their data of interest. Briefly, VC-optimus simulates a dataset based on user-supplied criteria and compares the precision and recall of three widely-used tools (GATK, Free Bayes, and Vardict) both individually and in combination, on that dataset. The main sources of error simulated by the VC-optimus pipeline are sequencing coverage, platform error, and average nucleotide diversity of the population. Users can then go on to analyze their dataset of interest using VC-optimus. 
 
-Required Dependencies:
+**Required Dependencies:**
 
 1. anaconda 
 2. gatk (tested with v4)
 
-Installation:
+**Installation:**
 
 ```bash
 git clone https://github.com/luisacusick/reads-to-variants.git
 cd reads-to-variants/
 conda env create -f environment.yml
+source activate snvCalling
 ```
 
-This will create a conda environment called snvCalling
-
-Workflow:
+**Workflow:**
 
 1. Process Reference (index, create sequence dictionary, and create bed file)
-      
-      ./processRef.sh -r <reference>
-        --this writes the dictionary/indices to the reference's file
+```bash
+./processRef.sh -r <reference>
+```
+ 
+   this writes the dictionary/indices to the reference file directory
   
 1. Process Sample (normalize read names and align reads to reference)
 
       For paired end reads:
-      ./processSample.sh -r <reference> -s <read1.fq> -s <read2.fq> -p 
-
+```bash
+./processSample.sh -r <reference> -s <read1.fq> -s <read2.fq> -p 
+```
       For unpaired reads:
-      ./processSample.sh -r <reference> -s <read.fq>
+```bash
+./processSample.sh -r <reference> -s <read.fq>
+```
  
 2. Simulate a genome with desired divergence and reads with the same error profile as the real data. Process/align and call variants on simulated reads. Compares results of variant callers to true variants and outputs table with each methods' sensitivity, pvv, and F1.
 
