@@ -1,18 +1,20 @@
 #!/bin/bash
 
-while getopts "r" option; do
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+while getopts ":hr:" option; do
   case ${option} in
   h) echo 'Usage: processRef.sh -r <reference>'
      echo 'Creates an index, a sequence dictionary, and a bed file for the reference.'
+     exit 0;;
   r) REF=${OPTARG};;
-esac
+  esac
 done
 shift "$((OPTIND -1))"
 
-refDir=$((dirname "$REF"))
+refDir="$(dirname $REF)"
 
-
-python createBed.py ${REF} ${refDir}/ref.bed
+python ${scriptDir}/createBed.py ${REF} ${refDir}/ref.bed
 
 refPrefix=$(echo "${REF}" | cut -f 1 -d '.')
 
