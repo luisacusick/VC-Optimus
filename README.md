@@ -8,9 +8,11 @@ Required Dependencies:
 
 Installation:
 
-```git clone https://github.com/luisacusick/reads-to-variants.git```
-```cd reads-to-variants/```
-```conda env create -f environment.yml```
+```bash
+git clone https://github.com/luisacusick/reads-to-variants.git
+cd reads-to-variants/
+conda env create -f environment.yml
+```
 
 This will create a conda environment called snvCalling
 
