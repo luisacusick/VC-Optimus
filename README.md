@@ -1,5 +1,5 @@
 # VC-optimus: Variant Calling Optimization Using Simulations
-Population genetic analyses typically begin by identifying genetic variants in a sequenced population using any one of several variant calling tools. However, the performance of any single tool is sensitive to the particularities of individual datasets, potentially resulting in the non-optimal recovery of true variants. VC-optimus is  pipeline that enables users to make an a priori informed choice about what tool, or combinations of tools, are best suited for analyzing their data of interest. Briefly, VC-optimus simulates a dataset based on user-supplied criteria and compares the precision and recall of three widely-used tools (GATK, Free Bayes, and Vardict) both individually and in combination. The main sources of error simulated by the VC-optimus pipeline are sequencing coverage, platform error, and average nucleotide diversity of your population.
+Population genetic analyses typically begin by identifying genetic variants in a sequenced population using any one of several variant calling tools. However, the performance of any single tool is sensitive to the particularities of individual datasets, potentially resulting in the non-optimal recovery of true variants. VC-optimus is  pipeline that enables users to make an *a priori* informed choice about what tool, or combinations of tools, are best suited for analyzing their data of interest. Briefly, VC-optimus simulates a dataset based on user-supplied criteria and compares the precision and recall of three widely-used tools (GATK, Free Bayes, and Vardict) both individually and in combination, on that dataset. The main sources of error simulated by the VC-optimus pipeline are sequencing coverage, platform error, and average nucleotide diversity of the population. Users can then go on to analyze their dataset of interest using VC-optimus. 
 
 Required Dependencies:
 
@@ -8,9 +8,11 @@ Required Dependencies:
 
 Installation:
 
-git clone https://github.com/luisacusick/reads-to-variants.git
+```git clone https://github.com/luisacusick/reads-to-variants.git```
+```cd reads-to-variants/```
+```conda env create -f environment.yml```
 
-conda env create -f environment.yml 
+This will create a conda environment called snvCalling
 
 Workflow:
 
