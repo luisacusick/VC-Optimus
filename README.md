@@ -25,7 +25,7 @@ source activate snvCalling
 ``` 
    --this writes the dictionary/indices and bed file to the reference file directory
   
-1. Process sample
+2. Process sample
 
    For paired end reads:
 ```bash
@@ -37,7 +37,7 @@ source activate snvCalling
 ```
    --this normalizes read names and align reads to reference
    
-2. Simulate reads, call variants, and compare called variants to known variants
+3. Simulate reads, call variants, and compare called variants to known variants
 
 ```bash
 ./simulate.sh -r <reference> -d <divergence proportion> -s <read1.fq> -s <read2.fq>
@@ -46,7 +46,7 @@ source activate snvCalling
    --default divergence proportion is .01 (means .01 of the sites in the simulated genome will be different from the reference)
    --creates a directory called 'sim' in the current working directory 
   
- 3. Run the desired, optimal combination of variant callers on your real data set
+4. Run the desired, optimal combination of variant callers on your real data set
 
 ```bash
 ./callVariants.sh -r <reference> -b <bam file> -o <output directory> -g (include gatk) -f (include free bayes) -v (include vardict) -a (include all)
