@@ -45,6 +45,38 @@ esac
 done
 shift "$(($OPTIND -1))"
 
+if [[ -f ${REF} ]]
+then
+  echo "Found ${REF}"
+else 
+  echo "Reference not found"
+  exit 0
+fi
+
+if [[ -f ${SAMPLES[0]} ]]
+then
+  echo "Found ${SAMPLES[0]}"
+else
+  echo "Couldn't find sample"
+  exit 0
+fi
+
+if [ ${#SAMPLES[@]} -gt 1 ]
+then
+  if [[ -f ${SAMPLES[1]} ]]
+  then
+    echo "Found ${SAMPLES[1]}"
+  else
+    echo "Couldn't find second sample"
+    exit 0
+fi
+
+if [ ${#SAMPLES[@]} -gt 2 ]
+then 
+  echo "Use a maximum of 2 samples"
+  exit 0
+fi
+
 mkdir $OUTPATH #Temporary directory to keep intermediate files in 
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
@@ -57,8 +89,7 @@ fi
 
 #Align reads to reference#
 
-#Index the reference:
-#bwa index ${REF} #this step included in processReference.sh
+#Align sample to ref
 bwa mem ${REF} ${SAMPLES[0]} ${SAMPLES[1]} -t 8 -M -o ${OUTPATH}/aln.sam
 samtools sort ${OUTPATH}/aln.sam -o ${OUTPATH}/aln.bam -@ 8
 

@@ -2,6 +2,7 @@
 
 printUsage(){
   echo "USAGE"
+  exit 0
 }
 
 declare -a FASTQ
@@ -20,6 +21,15 @@ while getopts "hr:d:s:g:v:i:" option; do
 esac
 done
 shift "$((OPTIND -1))"
+
+#check user input to ensure files exist
+if [[ -f ${REF} ]]
+then
+  echo "Found ${REF}"
+else
+  echo "Reference sequence not found"
+  exit 0
+fi
 
 chars=($(wc -m ${REF})) #counts number of characters in reference genome
 snps=$(echo "$chars*$DIV" | bc) #calculate number of snps 
@@ -41,4 +51,3 @@ DICT=$(echo "${REF%.*}").dict
 
 ./normAndCombine.sh -r ${REF} -v mutated.refseq2simseq.SNP.vcf -s ${DICT}
 
-python parseDiff.py sim/results sim/results/simMethodStats.csv
