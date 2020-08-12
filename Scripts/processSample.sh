@@ -45,6 +45,38 @@ esac
 done
 shift "$(($OPTIND -1))"
 
+if [[ -f ${REF} ]]
+then
+  echo "Found ${REF}"
+else 
+  echo "Reference not found"
+  exit 0
+fi
+
+if [[ -f ${SAMPLES[0]} ]]
+then
+  echo "Found ${SAMPLES[0]}"
+else
+  echo "Couldn't find sample"
+  exit 0
+fi
+
+if [ ${#SAMPLES[@]} -gt 1 ]
+then
+  if [[ -f ${SAMPLES[1]} ]]
+  then
+    echo "Found ${SAMPLES[1]}"
+  else
+    echo "Couldn't find second sample"
+    exit 0
+fi
+
+if [ ${#SAMPLES[@]} -gt 2 ]
+then 
+  echo "Use a maximum of 2 samples"
+  exit 0
+fi
+
 mkdir $OUTPATH #Temporary directory to keep intermediate files in 
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
@@ -57,16 +89,14 @@ fi
 
 #Align reads to reference#
 
-#Index the reference:
-bwa index ${REF}
-bwa mem ${REF} ${SAMPLES[1]} ${SAMPLES[2]} -t 8 -M | samtools sort -@8 -o ${OUTPATH}/aln.bam - 
-#rm ${OUTPATH}/aln.sam #remove sam file 
+#Align sample to ref
+bwa mem ${REF} ${SAMPLES[0]} ${SAMPLES[1]} -t 8 -M -o ${OUTPATH}/aln.sam
+samtools sort ${OUTPATH}/aln.sam -o ${OUTPATH}/aln.bam -@ 8
+
+rm ${OUTPATH}/aln.sam #remove sam file 
 
 #Insert read group naming
 picard AddOrReplaceReadGroups INPUT=${OUTPATH}/aln.bam OUTPUT=${OUTPATH}/alnRG.bam RGID=${ID} RGLB=${RGLB} RGPL=${RGPL} RGPU=${RGPU} RGSM=${SAMPLE_NAME}
-
-#Sort bam file
-#samtools sort ${OUTPATH}/alnRG.bam -o ${OUTPATH}/alnSort.bam
 
 #Mark duplicates
 picard MarkDuplicates I=${OUTPATH}/alnRG.bam O=${OUTPATH}/alnFinal.bam M=${OUTPATH}/marked_dup_metrics.txt
@@ -75,11 +105,8 @@ samtools index ${OUTPATH}/alnFinal.bam #creates .bam.bai file in input directory
 echo "Created alnFinal.bam in output directory"
 
 #Recalibrate base scores
-gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} -O ${OUTPATH}/recal_data.table
+#gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} --known-sites /pylon5/eb5phrp/luc32/MedTrunSimulations_3/mutated.refseq2simseq.SNP.vcf -O ${OUTPATH}/recal_data.table
+
+#gatk/gatk ApplyBQSR -R ${REF} -I ${OUTPATH}/alnFinal.bam --bqsr-recal-file ${OUTPATH}/recal_data.table -O ${OUTPATH}/alnFinalRecal.bam 
 
 picard ValidateSamFile I=${OUTPATH}/alnFinal.bam MODE=SUMMARY
-
-#These steps are necessary for each referenece for variant calling, but don't want to perform them more than once per reference
-#PREFIX=$(echo "${REF}" | cut -f 1 -d '.')
-#picard CreateSequenceDictionary R=${REF} O=${PREFIX}.dict #create reference dictionary
-#samtools faidx ${REF} #index reference  
