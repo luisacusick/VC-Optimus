@@ -12,6 +12,14 @@ while getopts ":hr:" option; do
 done
 shift "$((OPTIND -1))"
 
+if [[ -f ${REF} ]]
+then
+  echo "Found ${REF}"
+else
+  echo "Reference not found"
+  exit 0
+fi
+
 refDir="$(dirname $REF)"
 
 python ${scriptDir}/createBed.py ${REF} ${refDir}/ref.bed
