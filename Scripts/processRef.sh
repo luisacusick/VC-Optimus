@@ -5,8 +5,8 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 while getopts ":hr:" option; do
   case ${option} in
   h) echo 'Usage: processRef.sh -r <reference>'
-     echo 'Creates an index, a sequence dictionary, and a bed file for the reference.'
-     exit 0 ;;
+     echo 'Creates an index, a sequence dictionary, and a bed file for the reference'
+     exit 0;;
   r) REF=${OPTARG};;
   esac
 done
