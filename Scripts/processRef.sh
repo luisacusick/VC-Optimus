@@ -22,7 +22,7 @@ else
   exit 0
 fi
 
-python ${scriptDir}/createBed.py ${REF} ${refDir}/ref.bed >> out 2>&1
+python ${scriptDir}/createBed.py ${REF} ${refDir}/ref.bed
 
 refPrefix=$(echo "${REF}" | cut -f 1 -d '.')
 
