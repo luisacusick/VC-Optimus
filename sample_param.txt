@@ -1,0 +1,16 @@
+REFERENCE the reference file in fasta format
+SAMPLE1 sample in fastq format
+SAMPLE2 2nd sample in fastq format (optional)
+PAIRED true/false (default false)
+ZIPPED true/false (default false)
+SAMPLE_NAME (default 'sample.' named sample required for downstream analysis)
+READ_GROUP_ID (default 'id.')
+READ_GROUP_LIBRARY (default 'lib1')
+READ_GROUP_PLATFORM (default 'blank')
+READ_GROUP_PLATFORM_UNIT (default 000. ex: SRRXXXXXX)
+OUTPUT_DIRECTORY path to output directory. if it doesn't already exist the program creates it.
+
+DIVERGENCE estimate divergence between sample and reference for simulation purposes. express as a proportion. (default .01)
+
+
+ 
