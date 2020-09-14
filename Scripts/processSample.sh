@@ -69,6 +69,7 @@ then
   else
     echo "Couldn't find second sample"
     exit 0
+  fi
 fi
 
 if [ ${#SAMPLES[@]} -gt 2 ]

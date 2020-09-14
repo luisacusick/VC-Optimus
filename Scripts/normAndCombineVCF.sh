@@ -4,12 +4,13 @@ trueVCF=false
 g=true
 v=true
 f=true
-while getopts "hv:r:s:gvf" option; do
+while getopts "hv:r:s:d:gvf" option; do
   case ${option} in
   h) "Usage: " ;;
   r) REF=${OPTARG};;
   v) trueVCF=${OPTARG};;
   s) seqDict=${OPTARG};;
+  d) simDir=${OPTARG};;
   g) g=false;;
   v) v=false;;
   f) f=false;;
@@ -17,7 +18,7 @@ esac
 done
 shift "$((OPTIND -1))"
 
-pathBase=sim/results
+pathBase=${simDir}/results
 
 #Don't have to normalize gatk vcfs because they are written in normalized form
 vt/vt normalize ${pathBase}/freeBayes.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${ref}
@@ -74,5 +75,3 @@ bcftools stats ${pathBase}/vardGatk.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBa
 bcftools stats ${pathBase}/gatkFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/gatk.log
 bcftools stats ${pathBase}/vardictNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/vardict.log
 bcftools stats ${pathBase}/freeBayesNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/fb.log
-
-

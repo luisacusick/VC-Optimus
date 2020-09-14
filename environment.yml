@@ -1,4 +1,4 @@
-name: snvCalling
+name: VC-optimus
 channels:
   - biobuilds
   - anaconda
@@ -275,5 +275,5 @@ dependencies:
   - zipp=0.6.0=py_0
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.4.4=h0b5b093_3
-prefix: /home/luc32/.conda/envs/snvCalling
+prefix: /home/luc32/.conda/envs/VC-optimus
 

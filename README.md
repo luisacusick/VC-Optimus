@@ -3,7 +3,7 @@ Population genetic analyses typically begin by identifying genetic variants in a
 
 VC-optimus makes use of the following tools: <INSERT_LIST_WITH_REFS>
 
-**Dependencies requiring user installation:**
+**Dependencies requiring user installation (all should be in your $PATH):**
 
 1. anaconda 
 2. gatk (tested with v4)
@@ -15,8 +15,20 @@ git clone https://github.com/luisacusick/reads-to-variants.git
 cd reads-to-variants/
 chmod 755 Scripts/*
 conda env create -f environment.yml
-source activate snvCalling
 ```
+
+**Initiate environment and libraries (must be done at the start of each session)**
+
+```
+source activate VC-optimus
+export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
+```
+
+**Tips before starting**
+
+   * the reference genome should ideally be named <genome code>.fasta
+   * input fastq files should already be quality checked and trimmed 
+   * <insert advice about how to combine read libraries here>
 
 **Workflow:**
 
