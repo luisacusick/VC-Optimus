@@ -10,6 +10,7 @@ RGLB='lib1'
 RGPL='blank'
 RGPU='000'
 OUTPATH='tmp'
+THREADS=1
 
 while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
   case ${option} in
@@ -29,6 +30,7 @@ while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
      echo "-pl Read group platform. Default: blank"
      echo "-pu Read group platform unit (ex. SRRXXXXXXX) Default: 000"
      echo "-o Path to output directory. If it doesn't already exist program creates it."
+     echo "-t Number of threads for aligner"
      exit 0;;
   c) CLEAN_NAMES=true;;
   p) PAIRED=true;;
@@ -41,6 +43,7 @@ while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
   r) REF=${OPTARG};;
   s) SAMPLES+=("$OPTARG");;
   o) OUTPATH=${OPTARG};;
+  t) THREADS=${OPTARG};;
 esac
 done
 shift "$(($OPTIND -1))"
@@ -78,6 +81,13 @@ then
   exit 0
 fi
 
+#Verify thread number is > 1
+if [ ${THREADS} -lt 1 ]
+then
+  echo "Thread must be an int greater than or equal to 1"
+  exit 0
+fi
+
 mkdir $OUTPATH #Temporary directory to keep intermediate files in 
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
@@ -91,7 +101,7 @@ fi
 #Align reads to reference#
 
 #Align sample to ref
-bwa mem ${REF} ${SAMPLES[0]} ${SAMPLES[1]} -t 8 -M -o ${OUTPATH}/aln.sam
+bwa mem ${REF} ${SAMPLES[0]} ${SAMPLES[1]} -t ${THREADS} -M -o ${OUTPATH}/aln.sam
 samtools sort ${OUTPATH}/aln.sam -o ${OUTPATH}/aln.bam -@ 8
 
 rm ${OUTPATH}/aln.sam #remove sam file 

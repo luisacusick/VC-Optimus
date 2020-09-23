@@ -20,6 +20,7 @@ else
   exit 0
 fi
 
+source activate VC-optimus
 #Add the parameters in the config file to an associative array
 declare -A PARAM_ARRAY
 n=0
@@ -33,10 +34,20 @@ do
 done < ${PARAM}
 
 #To-Do: decide on input verification strategy
+#verify that -p is true or false
 
-#Call processRef and processSim
+#Call processRef
+./processRef.sh -r ${PARAM_ARRAY[REFERENCE]}
 
-#Call simulate script
+#Call processSample and simulate.sh for paried reads
+if [ ${PARAM_ARRAY[PARIED]} = true ]
+then 
+  ./processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -s ${PARAM_ARRAY[SAMPLE2]}
+  ./simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -s ${PARAM_ARRAY[SAMPLE2]}
+else #call scripts for unpaired reads/single sample
+  ./processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[SAMPLE1]}
+  ./simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]}
+fi
 
 #Call variants real
 

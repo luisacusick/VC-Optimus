@@ -57,8 +57,8 @@ def parseLog(diffFile):
   f1 = computeF1(sens, ppv)
 
   return[sens, ppv, f1]
- 
-#TO-DO: read cmd line arguments
+
+#first arg is the path to the output folder containing logs, second arg is the path to desired output file with run stats
 def main():
   
   args = sys.argv

@@ -73,5 +73,5 @@ ${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/alnFinal.bam -o ${simDir}/results
 
 DICT=$(echo "${REF%.*}").dict 
 
-${scriptDir}/normAndCombine.sh -d ${simDir} -r ${REF} -v ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT}
+${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -v ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT}
 

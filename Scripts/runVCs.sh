@@ -9,8 +9,7 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 while getopts "hr:b:o:afgv" option; do
   case ${option} in
   h) echo ""
-     echo "Usage: runVCs.sh -r Ref.fa -b sample.bam -o outfolder -f (excludes free bayes) -g (excludes gatk) -v (excludes vardict)"
-     echo "The default is to run gatk, freebayes, and vardict. Use flags to exclude any of them from the analysis."
+     echo "Usage: runVCs.sh -r Ref.fa -b sample.bam -o outfolder -f (includes free bayes) -g (includes gatk) -v (includes vardict)"
      exit 0;;
   r) REF=${OPTARG};;
   b) BAM=${OPTARG};;

@@ -48,7 +48,7 @@ picard MergeVcfs I=${pathBase}/vardictNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=
 if [ "$v" -eq false ] #if there's no true vcf to compare results to, exit
 then
   exit 0
-if
+fi
 
 bgzip ${pathBase}/all.vcf
 bcftools index ${pathBase}/all.vcf.gz
@@ -75,3 +75,5 @@ bcftools stats ${pathBase}/vardGatk.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBa
 bcftools stats ${pathBase}/gatkFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/gatk.log
 bcftools stats ${pathBase}/vardictNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/vardict.log
 bcftools stats ${pathBase}/freeBayesNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/fb.log
+
+python parseDiff.py ${pathBase} ${pathBase}/runStats.out
