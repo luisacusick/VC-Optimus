@@ -26,8 +26,14 @@ python ${scriptDir}/createBed.py ${REF} ${refDir}/ref.bed
 
 refPrefix=$(echo "${REF}" | cut -f 1 -d '.')
 
-picard CreateSequenceDictionary R=${REF} O=${refPrefix}.dict #create ref dictionary
+if [[ ! -f ${refPrefix}.dict ]]
+then
+  picard CreateSequenceDictionary R=${REF} O=${refPrefix}.dict #create ref dictionary
+fi
 
-samtools faidx ${REF} #index the reference
+if [[ ! -f ${refPrefix}.fai ]]
+then
+  samtools faidx ${REF} #index the reference
+fi
 
 bwa index ${REF} #index the reference for purposes of aligning 

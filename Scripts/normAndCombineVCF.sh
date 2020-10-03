@@ -4,13 +4,13 @@ trueVCF=false
 g=true
 v=true
 f=true
-while getopts "hv:r:s:d:gvf" option; do
+while getopts "hv:r:s:o:gvf" option; do
   case ${option} in
   h) "Usage: " ;;
   r) REF=${OPTARG};;
   v) trueVCF=${OPTARG};;
   s) seqDict=${OPTARG};;
-  d) simDir=${OPTARG};;
+  o) output=${OPTARG};;
   g) g=false;;
   v) v=false;;
   f) f=false;;
@@ -18,7 +18,7 @@ esac
 done
 shift "$((OPTIND -1))"
 
-pathBase=${simDir}/results
+pathBase=${output}/sim/vcfs
 
 #Don't have to normalize gatk vcfs because they are written in normalized form
 vt/vt normalize ${pathBase}/freeBayes.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${ref}
@@ -76,4 +76,5 @@ bcftools stats ${pathBase}/gatkFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBa
 bcftools stats ${pathBase}/vardictNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/vardict.log
 bcftools stats ${pathBase}/freeBayesNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/fb.log
 
-python parseDiff.py ${pathBase} ${pathBase}/runStats.out
+
+python parseDiff.py ${pathBase} ${output}

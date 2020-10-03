@@ -9,7 +9,7 @@ ID='id'
 RGLB='lib1'
 RGPL='blank'
 RGPU='000'
-OUTPATH='tmp'
+OUTDIR='vc-optimus-output/'
 THREADS=1
 
 while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
@@ -42,7 +42,7 @@ while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
   z) ZIPPED=true;;
   r) REF=${OPTARG};;
   s) SAMPLES+=("$OPTARG");;
-  o) OUTPATH=${OPTARG};;
+  o) OUTDIR=${OPTARG};;
   t) THREADS=${OPTARG};;
 esac
 done
@@ -88,7 +88,9 @@ then
   exit 0
 fi
 
-mkdir $OUTPATH #Temporary directory to keep intermediate files in 
+OUTPATH=${OUTDIR}/tmp
+
+mkdir ${OUTDIR}/tmp #store non-result intermmediate files here
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
 then
@@ -113,7 +115,7 @@ picard AddOrReplaceReadGroups INPUT=${OUTPATH}/aln.bam OUTPUT=${OUTPATH}/alnRG.b
 picard MarkDuplicates I=${OUTPATH}/alnRG.bam O=${OUTPATH}/alnFinal.bam M=${OUTPATH}/marked_dup_metrics.txt
 samtools index ${OUTPATH}/alnFinal.bam #creates .bam.bai file in input directory
 
-echo "Created alnFinal.bam in output directory"
+echo "Created alnFinal.bam in output tmp directory"
 
 #Recalibrate base scores
 #gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} --known-sites /pylon5/eb5phrp/luc32/MedTrunSimulations_3/mutated.refseq2simseq.SNP.vcf -O ${OUTPATH}/recal_data.table
