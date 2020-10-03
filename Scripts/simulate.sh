@@ -12,14 +12,15 @@ INDEL=0
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-while getopts "hr:d:s:g:v:i:" option; do
+while getopts "hr:d:s:g:v:i:o:" option; do
   case ${option} in
   h) printUsage ;;
   r) REF=${OPTARG};; #reference
   d) DIV=${OPTARG};; #divergence, optional
   i) INDEL=${OPTARG};; #indel count, optional
-  s) SAMPLES+=("$OPTARG");; #fastq files
+  s) ${SAMPLES}+=${OPTARG};; #fastq files
   v) VCF=${OPTARG};; #vcf, optional
+  o) output=${OPTARG};; #output directory, optional
 esac
 done
 shift "$((OPTIND -1))"
@@ -55,23 +56,26 @@ fi
 chars=($(wc -m ${REF})) #counts number of characters in reference genome
 snps=$(echo "(($chars*$DIV)+0.5)/1" | bc) #calculate number of snps, rounded to nearest integer
 
-simDir = sim.$(date "+%Y.%m.%d-%H.%M.%S") #a unique name with a timestamp to enable multiple simultation runs
-mkdir ${simDir}  
+mkdir ${output}
+mkdir ${output}/sim.$(date "+%Y.%m.%d-%H.%M.%S")  
+
+simDir=${output}/sim.$(date "+%Y.%m.%d-%H.%M.%S")
+mkdir ${simDir}
 
 refPrefix=$(echo "${REF}" | cut -f 1 -d '.')
 
-perl ${scriptDir}/simuG.pl -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${refPrefix} 
+perl ${scriptDir}/simuG.pl -refseq ${REF} -snp_count ${snps} -prefix simDir/${refPrefix} 
 
-START=$(head -1 ${simDir}/${refPrefix}.simseq.genome.fa)
+START=$(head -1 simDir/${refPrefix}.simseq.genome.fa)
 
 java -jar ${scriptDir}/ArtificialFastqGenerator.jar -O ${simDir}/${refPrefix}.simseq.reads -R ${simDir}/${refPrefix}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} 1> ${simDir}/fastq.out 2> ${simDir}/fastq.err
 
 ${scriptDir}/processSample.sh -r ${REF} -s ${simDir}/${refPrefix}.simseq.reads.1.fastq -s ${simDir}/${refPrefix}.simseq.reads.fastq -o ${simDir}
 
-mkdir sim/results
-${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/alnFinal.bam -o ${simDir}/results
+mkdir ${simDir}/vcfs
+${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/alnFinal.bam -o ${simDir}/vcfs
 
 DICT=$(echo "${REF%.*}").dict 
 
-${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -v ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT}
+${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -v ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT} -o ${simDir}/result_summary.txt
 
