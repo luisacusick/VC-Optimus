@@ -18,7 +18,7 @@ while getopts "hr:d:s:g:v:i:o:" option; do
   r) REF=${OPTARG};; #reference
   d) DIV=${OPTARG};; #divergence, optional
   i) INDEL=${OPTARG};; #indel count, optional
-  s) ${SAMPLES}+=${OPTARG};; #fastq files
+  s) SAMPLES[${#SAMPLES[@]}]=${OPTARG};; #fastq files
   v) VCF=${OPTARG};; #vcf, optional
   o) output=${OPTARG};; #output directory, optional
 esac
@@ -34,6 +34,7 @@ else
   exit 0
 fi
 
+echo ${SAMPLES}
 if [[ -f ${SAMPLES[0]} ]]
 then
   echo "Found ${SAMPLES[0]}"

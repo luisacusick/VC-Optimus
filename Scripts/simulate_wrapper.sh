@@ -54,6 +54,8 @@ then
   exit 0
 fi
 
+echo ${PARAM_ARRAY[SAMPLE1]}
+echo ${PARAM_ARRAY[SAMPLE2]}
 #Call simulate.sh for paried reads
 if [ ${PARAM_ARRAY[PAIRED]} = true ]
 then 
