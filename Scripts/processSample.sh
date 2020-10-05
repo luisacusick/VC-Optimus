@@ -60,7 +60,7 @@ if [[ -f ${SAMPLES[0]} ]]
 then
   echo "Found ${SAMPLES[0]}"
 else
-  echo "Couldn't find sample"
+  echo "Couldn't find sample ${SAMPLES[0]}"
   exit 0
 fi
 
@@ -70,7 +70,7 @@ then
   then
     echo "Found ${SAMPLES[1]}"
   else
-    echo "Couldn't find second sample"
+    echo "Couldn't find second sample ${SAMPLES[1]}"
     exit 0
   fi
 fi

@@ -5,20 +5,21 @@ printUsage(){
   exit 0
 }
 
-declare -a SAMPLES
 REF=''
 DIV=0.1
 INDEL=0
-
+PAIRED=false
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-while getopts "hr:d:s:g:v:i:o:" option; do
+while getopts "hpr:d:s:t:g:v:i:o:" option; do
   case ${option} in
-  h) printUsage ;;
+  h) printUsage;;
+  p) PAIRED=true;;
   r) REF=${OPTARG};; #reference
   d) DIV=${OPTARG};; #divergence, optional
   i) INDEL=${OPTARG};; #indel count, optional
-  s) SAMPLES[${#SAMPLES[@]}]=${OPTARG};; #fastq files
+  s) SAMPLE1=${OPTARG};; #fastq file 
+  t) SAMPLE2=${OPTARG};; #optional second fastq file
   v) VCF=${OPTARG};; #vcf, optional
   o) output=${OPTARG};; #output directory, optional
 esac
@@ -34,20 +35,19 @@ else
   exit 0
 fi
 
-echo ${SAMPLES}
-if [[ -f ${SAMPLES[0]} ]]
+if [[ -f ${SAMPLE1} ]]
 then
-  echo "Found ${SAMPLES[0]}"
+  echo "Found ${SAMPLE1}"
 else
   echo "Couldn't find sample"
   exit 0
 fi
 
-if [ ${#SAMPLES[@]} -gt 1 ]
+if [ -n ${SAMPLE2} ]
 then
-  if [[ -f ${SAMPLES[1]} ]]
+  if [[ -f ${SAMPLE2} ]]
   then
-    echo "Found ${SAMPLES[1]}"
+    echo "Found ${SAMPLE2}"
   else
     echo "Couldn't find second sample"
     exit 0
@@ -57,21 +57,19 @@ fi
 chars=($(wc -m ${REF})) #counts number of characters in reference genome
 snps=$(echo "(($chars*$DIV)+0.5)/1" | bc) #calculate number of snps, rounded to nearest integer
 
-mkdir ${output}
-mkdir ${output}/sim.$(date "+%Y.%m.%d-%H.%M.%S")  
-
 simDir=${output}/sim.$(date "+%Y.%m.%d-%H.%M.%S")
 mkdir ${simDir}
 
-refPrefix=$(echo "${REF}" | cut -f 1 -d '.')
+refFile=$(basename -- "$REF")
+refPrefix="${refFile%.*}"
 
-perl ${scriptDir}/simuG.pl -refseq ${REF} -snp_count ${snps} -prefix simDir/${refPrefix} 
+simuG.pl -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${refPrefix} 1> ${simDir}/simuG.out 2> ${simDir}/simuG.err 
 
-START=$(head -1 simDir/${refPrefix}.simseq.genome.fa)
+START=$(head -1 ${simDir}/${refPrefix}.simseq.genome.fa)
 
-java -jar ${scriptDir}/ArtificialFastqGenerator.jar -O ${simDir}/${refPrefix}.simseq.reads -R ${simDir}/${refPrefix}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} 1> ${simDir}/fastq.out 2> ${simDir}/fastq.err
+java -jar ArtificialFastqGenerator.jar -O ${simDir}/${refPrefix}.simseq.reads -R ${simDir}/${refPrefix}.simseq.genome.fa -F1 ${SAMPLE1} -F2 ${SAMPLE2} -URQS true -SE true -S ${START}
 
-${scriptDir}/processSample.sh -r ${REF} -s ${simDir}/${refPrefix}.simseq.reads.1.fastq -s ${simDir}/${refPrefix}.simseq.reads.fastq -o ${simDir}
+${scriptDir}/processSample.sh -r ${REF} -s ${simDir}/${refPrefix}.simseq.reads.1.fastq -s ${simDir}/${refPrefix}.simseq.reads.2.fastq -o ${simDir}
 
 mkdir ${simDir}/vcfs
 ${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/alnFinal.bam -o ${simDir}/vcfs

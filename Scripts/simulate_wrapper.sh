@@ -56,10 +56,13 @@ fi
 
 echo ${PARAM_ARRAY[SAMPLE1]}
 echo ${PARAM_ARRAY[SAMPLE2]}
+
+echo 'printing divergence'
+echo ${PARAM_ARRAY[DIVERGENCE]}
 #Call simulate.sh for paried reads
 if [ ${PARAM_ARRAY[PAIRED]} = true ]
 then 
-  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -s ${PARAM_ARRAY[SAMPLE2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
+  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -t ${PARAM_ARRAY[SAMPLE2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
 else #call scripts for unpaired reads/single sample
   ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 
 fi
