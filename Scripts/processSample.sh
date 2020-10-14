@@ -90,6 +90,11 @@ fi
 
 OUTPATH=${OUTDIR}/tmp
 
+echo "\n"
+echo "PRINTING OUTPATH"
+
+echo ${OUTPATH}
+
 mkdir ${OUTDIR}/tmp #store non-result intermmediate files here
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
@@ -113,13 +118,9 @@ picard AddOrReplaceReadGroups INPUT=${OUTPATH}/aln.bam OUTPUT=${OUTPATH}/alnRG.b
 
 #Mark duplicates
 picard MarkDuplicates I=${OUTPATH}/alnRG.bam O=${OUTPATH}/alnFinal.bam M=${OUTPATH}/marked_dup_metrics.txt
-samtools index ${OUTPATH}/alnFinal.bam #creates .bam.bai file in input directory
 
 echo "Created alnFinal.bam in output tmp directory"
 
-#Recalibrate base scores
-#gatk/gatk BaseRecalibrator -I ${OUTPATH}/alnFinal.bam -R ${REF} --known-sites /pylon5/eb5phrp/luc32/MedTrunSimulations_3/mutated.refseq2simseq.SNP.vcf -O ${OUTPATH}/recal_data.table
+samtools index ${OUTPATH}/alnFinal.bam #creates .bam.bai (indexed bam) in input directory
 
-#gatk/gatk ApplyBQSR -R ${REF} -I ${OUTPATH}/alnFinal.bam --bqsr-recal-file ${OUTPATH}/recal_data.table -O ${OUTPATH}/alnFinalRecal.bam 
-
-picard ValidateSamFile I=${OUTPATH}/alnFinal.bam MODE=SUMMARY
+picard ValidateSamFile I=${OUTPATH}/alnFinal.bam R=${REF} MODE=SUMMARY
