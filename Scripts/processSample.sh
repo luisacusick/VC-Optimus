@@ -16,7 +16,7 @@ while getopts "hcpi:l:pl:pu:n:zr:s:o:" option; do
   case ${option} in
    h) 
      echo ""
-     echo "Usage: process.sh [-c|-p|-z] -r Ref.fa -s read1.fq -s read2.fq"
+     echo "Usage: processSample.sh [-c|-p|-z] -r Ref.fa -s read1.fq -s read2.fq"
      echo "-c True if paired end reads are followed by ".1" and ".2. "These must be removed align reads. Default: False"
      echo "-p Paired end reads? Default: False"
      echo "-z Zipped reads? Default: False"
