@@ -23,8 +23,8 @@ fi
 #all VC-optimus scripts live in the same directory; save the path to call the others
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-source activate snvCalling
-#source activate VC-optimus
+source activate VC-optimus
+
 #Add the parameters in the config file to an associative array
 declare -A PARAM_ARRAY
 n=0
@@ -40,13 +40,13 @@ done < ${PARAM}
 #To-Do: decide on input verification strategy
 #verify that -p (paired flag) is true or false
 
-#If user doesn't include an output directory in the param file then set output to sim/sim.timestamp
+#If user doesn't include an output directory in the param file then set directory to vc-optimus-output/
 if [ ! ${PARAM_ARRAY[OUTPUT_DIRECTORY]+_} ] 
 then
   PARAM_ARRAY+=([OUTPUT_DIRECTORY]=vc-optimus-output/)
 fi
 
-#If output directory with tmp directory doesn't exist then create it
+#If output directory with tmp directory doesn't exist then print a message about running preprocessing steps and exit
 if [ ! -d ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/tmp ]
 then
   echo ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
@@ -54,15 +54,19 @@ then
   exit 0
 fi
 
-echo ${PARAM_ARRAY[SAMPLE1]}
-echo ${PARAM_ARRAY[SAMPLE2]}
+if [ ! -d ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/simulations ]
+then
+  mkdir ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/simulations ] 
+  echo "Created directory ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/simulations"
+fi
 
-echo 'printing divergence'
-echo ${PARAM_ARRAY[DIVERGENCE]}
+simDir=${PARAM_ARRAY[OUTPUT_DIRECTORY]}/simulations/sim.$(date "+%Y.%m.%d-%H.%M.%S")
+mkdir ${simDir}
+
 #Call simulate.sh for paried reads
 if [ ${PARAM_ARRAY[PAIRED]} = true ]
 then 
-  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -t ${PARAM_ARRAY[SAMPLE2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
-else #call scripts for unpaired reads/single sample
-  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 
+  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -t ${PARAM_ARRAY[SAMPLE2]} -o ${simDir} 1> ${simDir}/simulate.out 2> ${simDir}/simulate.err 
+else 
+  ${scriptDir}/simulate.sh -r ${PARAM_ARRAY[REFERENCE]} -d ${PARAM_ARRAY[DIVERGENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -o ${simDir} 1> ${simDir}/simulate.out 2> ${simDir}/simulate.err
 fi

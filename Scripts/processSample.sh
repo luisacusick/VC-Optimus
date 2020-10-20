@@ -90,11 +90,6 @@ fi
 
 OUTPATH=${OUTDIR}/tmp
 
-echo "\n"
-echo "PRINTING OUTPATH"
-
-echo ${OUTPATH}
-
 mkdir ${OUTDIR}/tmp #store non-result intermmediate files here
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names

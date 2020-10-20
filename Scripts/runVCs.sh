@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "RUNNING VCs"
+
 GATK=false
 VARDICT=false
 FREEBAYES=false
@@ -29,9 +31,9 @@ fi
 
 if [ "$VARDICT" = true ] ; then
   python ${scriptDir}/createBed.py ${REF} ${OUT}/ref.bed
-  bamPrefix=$(echo "${BAM}" | cut -f 1 -d '.')
+  sampleName="$(samtools view -H ${BAM} | grep '^@RG' | sed "s/.*SM:\([^\t]*\).*/\1/g" | uniq)"
   BED=${OUT}/ref.bed
-  vardict-java -U -G ${REF} -f .01 -N ${bamPrefix} -b ${BAM} -c 1 -S 2 -E 3 -g 4 ${BED} | teststrandbias.R | var2vcf_valid.pl -N ${bamPrefix} -E > ${OUT}/vardict.vcf
+  vardict-java -U -G ${REF} -f .01 -b ${BAM} -c 1 -S 2 -E 3 -g 4 ${BED} -N ${sampleName} | teststrandbias.R | var2vcf_valid.pl -E -N ${sampleName} > ${OUT}/vardict.vcf
 fi
 
 if [ "$FREEBAYES" = true ] ; then
