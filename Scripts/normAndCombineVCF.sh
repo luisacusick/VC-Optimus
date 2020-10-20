@@ -4,9 +4,10 @@ trueVCF=false
 g=true
 v=true
 f=true
-while getopts "hv:r:s:o:gvf" option; do
+while getopts "hv:r:s:d:o:gvf" option; do
   case ${option} in
   h) "Usage: " ;;
+  d) DIR=${OPTARG};; #VC-optimus simulation directory. must contain folder "vcfs" 
   r) REF=${OPTARG};;
   v) trueVCF=${OPTARG};;
   s) seqDict=${OPTARG};;
@@ -18,17 +19,17 @@ esac
 done
 shift "$((OPTIND -1))"
 
-pathBase=${output}/sim/vcfs
+pathBase=${DIR}/vcfs
 
 #Don't have to normalize gatk vcfs because they are written in normalized form
-vt/vt normalize ${pathBase}/freeBayes.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${ref}
+vt normalize ${pathBase}/freeBayes.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${REF}
 
-vt/vt normalize ${pathBase}/vardict.vcf -o ${pathBase}/vardictNorm.vcf -r ${ref}
+vt normalize ${pathBase}/vardict.vcf -o ${pathBase}/vardictNorm.vcf -r ${REF}
 
 ##FILTER RESULTS##
 vcffilter -f "QUAL > 25" ${pathBase}/freeBayesNorm.vcf > ${pathBase}/freeBayesNormFilt.vcf
 vcffilter -f "QUAL > 25" ${pathBase}/vardictNorm.vcf > ${pathBase}/vardictNormFilt.vcf
-vcffilter -f "QUAL > 25" ${pathBase}/gatk2.vcf > ${pathBase}/gatkFilt.vcf
+vcffilter -f "QUAL > 25" ${pathBase}/gatk.vcf > ${pathBase}/gatkFilt.vcf
 
 rm ${pathBase}/freeBayesNorm.vcf #removed normalized but unfiltered vcfs
 rm ${pathBase}/vardictNorm.vcf
@@ -45,7 +46,7 @@ picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/gatkFilt.vcf 
 #VCF with vardict and gatk
 picard MergeVcfs I=${pathBase}/vardictNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/vardGatk.vcf COMMENT='vardict and gatk' D=${seqDict} #must specify the sequence dictionary when combining vardict and gatk vcfs (neither contain that info.)
 
-if [ "$v" -eq false ] #if there's no true vcf to compare results to, exit
+if [ ! "$v" ] #if there's no true vcf to compare results to, exit
 then
   exit 0
 fi
@@ -75,6 +76,5 @@ bcftools stats ${pathBase}/vardGatk.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBa
 bcftools stats ${pathBase}/gatkFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/gatk.log
 bcftools stats ${pathBase}/vardictNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/vardict.log
 bcftools stats ${pathBase}/freeBayesNormFilt.vcf.gz ${trueVCF}.gz -e 'QUAL<20' > ${pathBase}/fb.log
-
 
 python parseDiff.py ${pathBase} ${output}
