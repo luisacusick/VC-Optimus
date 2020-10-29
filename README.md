@@ -42,11 +42,7 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 
    For paired end reads:
 ```bash
-./processSample.sh -r <reference.fa> -s <read1.fq> -s <read2.fq> -p
-```
-   For unpaired reads:
-```bash
-./processSample.sh -r <reference.fa> -s <read.fq>
+./process_sample_wrapper.sh -p <sample_param.txt>
 ```
    * this normalizes read names and align reads to reference
    
