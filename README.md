@@ -42,18 +42,19 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 
    For paired end reads:
 ```bash
-./process_sample_wrapper.sh -p <sample_param.txt>
+./process_sample_wrapper.sh -p <parameter file>
 ```
    * this normalizes read names and align reads to reference
+   * see process_param_sample.txt for an example param file
    
 3. Simulate reads, call variants, and compare called variants to known variants
 
 ```bash
-./simulate.sh -r <reference> -d <divergence proportion> -s <read1.fq> -s <read2.fq>
+./simulate_wrapper.sh -p <parameter file>
 ```
-   * This simulates a genome with desired sequence divergence from reference (known variants) and simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score <DESCRIBE_F1> either singly or in combination
+   * This simulates a genome with desired sequence divergence from reference (known variants) and simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score (an average of sensitivty and ppv, computed as 2*(precision * recall)/(precision + recall) either singly or in combination
+   * see simulate_param_sample.txt for an example param file
    * default divergence proportion is .01 (means .01 of the sites in the simulated genome will be different from the reference)
-   * creates a directory called 'sim' in the current working directory 
   
 4. Run the optimal combination of variant callers on your real data set
 
