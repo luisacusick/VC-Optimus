@@ -48,6 +48,7 @@ esac
 done
 shift "$(($OPTIND -1))"
 
+echo "REF ${REF}"
 if [[ -f ${REF} ]]
 then
   echo "Found ${REF}"

@@ -29,8 +29,7 @@ def createBed(refPath, outPath):
         bed = bed.append(toAdd, ignore_index=True)
   bed = bed[['1', '2', '3', '4']]
   bed.to_csv(outPath, sep='\t', index=False, header=False)
-
-#To-do: write script to parse user input 
+ 
 def main():
   args = sys.argv
   ref = args[1]

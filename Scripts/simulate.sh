@@ -13,7 +13,7 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 while getopts "hpr:d:s:t:g:v:i:o:" option; do
   case ${option} in
-  h) printUsage;;
+  h) printUsage;; 
   p) PAIRED=true;;
   r) REF=${OPTARG};; #reference
   d) DIV=${OPTARG};; #divergence, optional
@@ -21,7 +21,7 @@ while getopts "hpr:d:s:t:g:v:i:o:" option; do
   s) SAMPLE1=${OPTARG};; #fastq file 
   t) SAMPLE2=${OPTARG};; #optional second fastq file
   v) VCF=${OPTARG};; #vcf, optional
-  o) simDir=${OPTARG};; #simulation output driectory (timestamped)
+  o) simDir=${OPTARG};; #simulation output directory (timestamped by default)
 esac
 done
 shift "$((OPTIND -1))"
@@ -55,12 +55,13 @@ then
 fi
 
 chars=($(wc -m ${REF})) #counts number of characters in reference genome
+echo 'chars ${chars}'
 snps=$(echo "(($chars*$DIV)+0.5)/1" | bc) #calculate number of snps, rounded to nearest integer
 
 refFile=$(basename -- "$REF")
 refPrefix="${refFile%.*}"
 
-simuG.pl -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${refPrefix} 1> ${simDir}/simuG.out 2> ${simDir}/simuG.err 
+simuG.pl -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${refPrefix} 
 
 START=$(head -1 ${simDir}/${refPrefix}.simseq.genome.fa)
 
@@ -68,10 +69,9 @@ java -jar /pylon5/eb5phrp/luc32/FastqGenerator/ArtificialFastqGenerator.jar -O $
 
 ${scriptDir}/processSample.sh -r ${REF} -s ${simDir}/${refPrefix}.simseq.reads.1.fastq -s ${simDir}/${refPrefix}.simseq.reads.2.fastq -o ${simDir}
 
-mkdir ${simDir}/vcfs
-${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/tmp/alnFinal.bam -o ${simDir}/vcfs -g -v -f
+${scriptDir}/runVCs.sh -r ${REF} -b ${simDir}/tmp/alnFinal.bam -o ${simDir} -g true -v true -f true
 
 DICT=$(echo "${REF%.*}").dict 
 
-${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -v ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT} -o ${simDir}/result_summary.txt
+${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -c ${simDir}/${refPrefix}.refseq2simseq.SNP.vcf -s ${DICT} -o ${simDir}/result_summary.txt -g true -v true -f true
 

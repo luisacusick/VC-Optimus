@@ -51,10 +51,12 @@ then
   mkdir ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
 fi
 
+echo "REFERENCE IN PARAM ARRAY"
+echo ${PARAM_ARRAY[REFERENCE]}
 #Call processSample for paired reads
 if [ ${PARAM_ARRAY[PAIRED]} = true ]
 then 
-  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -s ${PARAM_ARRAY[READ2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
+  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -s ${PARAM_ARRAY[READ2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 1> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.out 2> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.err
 else #call scripts for unpaired reads/single sample
-  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 
+  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 1> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.out 2> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
 fi
