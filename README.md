@@ -30,7 +30,9 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
    * input fastq files should already be quality checked and trimmed 
    * <insert advice about how to combine read libraries here>
   
-**Expected Output and Directory Structure**
+**Expected Output**
+
+This is a sample directory structure for a vc-optimus run with 10 simulations and all of the default folder names. Note that all of folder names are parameters with the exception of 'tmp,' and the program creates any that do not exist. If the output folder already exists, the program could over-write some of its content.
 
 ```bash
 vc-optimus-output/ <--Top-level output directory name, set to vc-optimus-output by default
