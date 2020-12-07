@@ -49,7 +49,7 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 3. Simulate reads, call variants, and compare called variants to known variants
 
 ```bash
-./process_simulate_wrapper.sh -p <parameter file>
+./simulate_wrapper.sh -p <parameter file>
 ```
    * This simulates a genome with desired sequence divergence from reference (known variants) and simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score (the avg. of sensitivity and ppv, calculated as 2*(sensitivity * ppv)/(sensitivity + ppv) either singly or in combination
    * default divergence proportion is .01 (means .01 of the sites in the simulated genome will be different from the reference)
