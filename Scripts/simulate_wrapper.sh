@@ -37,9 +37,6 @@ do
   PARAM_ARRAY[$name]="$value"
 done < ${PARAM}
 
-#To-Do: decide on input verification strategy
-#verify that -p (paired flag) is true or false
-
 #If user doesn't include an output directory in the param file then set directory to vc-optimus-output/
 if [ ! ${PARAM_ARRAY[OUTPUT_DIRECTORY]+_} ] 
 then
@@ -49,8 +46,7 @@ fi
 #If output directory with tmp directory doesn't exist then print a message about running preprocessing steps and exit
 if [ ! -d ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/tmp ]
 then
-  echo ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
-  echo "VC-Optimus tmp directory not found. Please execute the pipeline's processing step before continuing."
+  echo "VC-Optimus tmp directory not found. Please execute the pipeline's processing step before continuing. Note that the output directory for each step must be the same."
   exit 0
 fi
 

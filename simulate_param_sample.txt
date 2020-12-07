@@ -1,0 +1,7 @@
+REFERENCE /pylon5/eb5phrp/luc32/Data/toyData_500k/Reference/medTrunRef500.fasta
+SAMPLE1 /pylon5/eb5phrp/luc32/Data/toyData_500k/Reads/toyData_500k.1.fastq
+SAMPLE2 /pylon5/eb5phrp/luc32/Data/toyData_500k/Reads/toyData_500k.2.fastq 
+PAIRED true
+OUTPUT_DIRECTORY /pylon5/eb5phrp/luc32/TESTSIMWRAPPER
+DIVERGENCE .01
+ 

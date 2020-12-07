@@ -4,8 +4,8 @@ PARAM=''
 #All user input in param file
 while getopts ":hp:" option; do
   case ${option} in
-  h) echo 'Usage: simulate_wrapper.sh -p <param_file>'
-     echo 'See README.md and sim_param.txt for details about the parameter file'
+  h) echo 'Usage: process_ref.sh -p <param_file>'
+     echo 'See README.md and ref_param.txt for details about the parameter file'
      exit 0;;
   p) PARAM=${OPTARG};;
   esac
@@ -23,8 +23,7 @@ fi
 #all VC-optimus scripts live in the same directory; save the path to call the others
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-source activate snvCalling
-#source activate VC-optimus
+source activate VC-optimus
 #Add the parameters in the config file to an associative array
 declare -A PARAM_ARRAY
 n=0
@@ -40,9 +39,6 @@ done < ${PARAM}
 #To-Do: decide on input verification strategy
 #verify that -p (paired flag) is true or false
 
-#Call processRef
-${scriptDir}/processRef.sh -r ${PARAM_ARRAY[REFERENCE]}
-
 #If user doesn't include an output directory in the param file then set output to sim/sim.timestamp
 if [ ! ${PARAM_ARRAY[OUTPUT_DIRECTORY]+_} ] 
 then
@@ -55,10 +51,12 @@ then
   mkdir ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
 fi
 
-#Call processSample and simulate.sh for paried reads
+echo "REFERENCE IN PARAM ARRAY"
+echo ${PARAM_ARRAY[REFERENCE]}
+#Call processSample for paired reads
 if [ ${PARAM_ARRAY[PAIRED]} = true ]
 then 
-  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -s ${PARAM_ARRAY[SAMPLE2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
+  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -s ${PARAM_ARRAY[READ2]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 1> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.out 2> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.err
 else #call scripts for unpaired reads/single sample
-  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[SAMPLE1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 
+  ${scriptDir}/processSample.sh -r ${PARAM_ARRAY[REFERENCE]} -s ${PARAM_ARRAY[READ1]} -o ${PARAM_ARRAY[OUTPUT_DIRECTORY]} 1> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}/processSample.out 2> ${PARAM_ARRAY[OUTPUT_DIRECTORY]}
 fi

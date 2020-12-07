@@ -46,7 +46,7 @@ def parseLog(diffFile):
   lineTp = diff[44] #line that contains tp number
   tp = extractInt(lineTp)
   
-  lineFp = diff[28]            
+  lineFp = diff[28]
   fp = extractInt(lineFp)
   
   lineFn = diff[36]
@@ -60,7 +60,7 @@ def parseLog(diffFile):
 
 #first arg is the path to the output folder containing logs, second arg is the path to desired output file with run stats
 def main():
-  
+
   args = sys.argv
   pathPrefix = args[1]
   output = args[2]
@@ -69,7 +69,6 @@ def main():
   logFiles = glob.glob(pathPrefix + '/*.log')
    
   for file in logFiles:
-    print(file)
     filename, file_extension = os.path.splitext(os.path.basename(file))
     row = parseLog(file)
     methods = methods + filename + ' ' + str(row[0]) + ' ' + str(row[1]) + ' ' + str(row[2]) + '\n'
@@ -79,6 +78,5 @@ def main():
   outF.writelines(methods)
   outF.close()
    
-
 if __name__ == "__main__":
   main()
