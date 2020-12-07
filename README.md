@@ -42,20 +42,16 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 
    For paired end reads:
 ```bash
-./processSample.sh -r <reference.fa> -s <read1.fq> -s <read2.fq> -p
+./process_sample_wrapper.sh -p <parameter file> 
 ```
-   For unpaired reads:
-```bash
-./processSample.sh -r <reference.fa> -s <read.fq>
-```
-   * this normalizes read names and align reads to reference
+   * this normalizes read names, align reads to references, and pre-processes for variant calling (sorting BAM, adding read group names, marking duplicates, and indexing)
    
 3. Simulate reads, call variants, and compare called variants to known variants
 
 ```bash
-./simulate.sh -r <reference> -d <divergence proportion> -s <read1.fq> -s <read2.fq>
+./process_simulate_wrapper.sh -p <parameter file>
 ```
-   * This simulates a genome with desired sequence divergence from reference (known variants) and simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score <DESCRIBE_F1> either singly or in combination
+   * This simulates a genome with desired sequence divergence from reference (known variants) and simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score (the avg. of sensitivity and ppv, calculated as 2*(sensitivity * ppv)/(sensitivity + ppv) either singly or in combination
    * default divergence proportion is .01 (means .01 of the sites in the simulated genome will be different from the reference)
    * creates a directory called 'sim' in the current working directory 
   
