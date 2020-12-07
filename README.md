@@ -29,6 +29,25 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
    * the reference genome should ideally be named <genome code>.fasta
    * input fastq files should already be quality checked and trimmed 
    * <insert advice about how to combine read libraries here>
+  
+**Expected Output and Directory Structure**
+
+vc-optimus-output/ <--Top-level output directory name, set to vc-optimus-output by default
+├── simulations <-- Folder with simulations
+│   ├── sim.2020.11.04-21.45.00 <-- Outut from a single simulation, set to sim.timestamp by default
+|   |   |──tmp <-- Output from processing the simulated reference and sample
+|   |   |──vcfs <-- Output from variant calling on simulated sample along with log files from comparison to true VCF
+│   ├── sim.2020.11.04-21.56.57 
+│   ├── sim.2020.11.04-21.58.35
+│   ├── sim.2020.11.04-22.04.11
+│   ├── sim.2020.11.04-22.16.35
+│   ├── sim.2020.11.04-22.23.38
+│   ├── sim.2020.11.04-22.34.27
+│   ├── sim.2020.12.01-17.34.50
+│   ├── sim.2020.12.01-18.22.57
+│   └── sim.2020.12.01-18.44.25
+├── tmp <-- Output from processing the reference and sample, contains alignment, alignment index, and regions (bed) file
+└── vcfs <-- Output from variant calling on real sample 
 
 **Workflow:**
 
