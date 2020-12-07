@@ -32,6 +32,7 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
   
 **Expected Output and Directory Structure**
 
+```bash
 vc-optimus-output/ <--Top-level output directory name, set to vc-optimus-output by default
 ├── simulations <-- Folder with simulations
 │   ├── sim.2020.11.04-21.45.00 <-- Outut from a single simulation, set to sim.timestamp by default
@@ -48,6 +49,7 @@ vc-optimus-output/ <--Top-level output directory name, set to vc-optimus-output 
 │   └── sim.2020.12.01-18.44.25
 ├── tmp <-- Output from processing the reference and sample, contains alignment, alignment index, and regions (bed) file
 └── vcfs <-- Output from variant calling on real sample 
+```
 
 **Workflow:**
 
