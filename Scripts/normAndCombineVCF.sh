@@ -4,11 +4,34 @@ g=false
 v=false
 f=false
 o=false
+VT_EXE='/users/PAS1046/osu9029/analyses/optimus/reads-to-variants/Scripts/vt-0.5772/vt' #indicate path to vt here
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" 
+
+if [[ ! -f ${VT_EXE} ]]
+then
+  echo "Error: cannot find the vt executable file; please specify its location in the header of this script, exiting.. "
+  exit 0
+fi
+
 
 while getopts "c:r:s:d:o:g:v:f:h" option; do
   case ${option} in
-  h) "Usage: " ;;
+  h) echo ""
+     echo "Usage: normAndCombineVCF.sh [-d analysis_directory -r ref.fa -c ground_truth.vcf -s reference_sequence.dictionary -o output -f true -g true -v true]"
+   	 echo ""
+     echo "---Required---"
+     echo "-r  [str] Path to reference genome fasta file"
+     echo "-d  [str] Path to analysis directory; must contain directory 'vcfs'"
+     echo "-c  [str] Path to ground truth simulated vcf file"
+     echo "-s  [str] Path to reference sequence dictionary"
+     echo "-o  [str] Path to output vcf file"
+   	 echo ""
+     echo "---Optional---"
+     echo "-f  [bln] includes freebayes (default: false)"
+     echo "-g  [bln] includes gatk (default: false)"
+     echo "-v  [bln] includes vardict (default: false)"
+   	 echo ""
+     exit 0;;
   d) DIR=${OPTARG};; #VC-optimus output directory. must contain folder "vcfs" 
   r) REF=${OPTARG};;
   c) trueVCF=${OPTARG};;
@@ -22,35 +45,53 @@ done
 shift "$((OPTIND -1))"
 
 
-echo "SEQ DICT ${seqDict}"
+#echo "SEQ DICT ${seqDict}"
 pathBase=${DIR}/vcfs
+
+if [[ ! -f $trueVCF ]] && [[ ! -f ${trueVCF}.gz ]] #if there's no true vcf, or its gz compressed version, to compare results to, exit
+then
+  echo "$trueVCF, the ground truth vcf, does not exist, exiting.."
+  exit 0
+fi
 
 #Don't have to normalize gatk vcfs because they are written in normalized form
 
 if [[ $f -eq true ]]
 then
-  vt normalize ${pathBase}/freeBayes.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${REF}
-  vcffilter -f "QUAL > 25" ${pathBase}/freeBayesNorm.vcf > ${pathBase}/freeBayesNormFilt.vcf
-  rm ${pathBase}/freeBayesNorm.vcf #remove normalized unfiltered vcf  
+  picard FixVcfHeader I=${pathBase}/freeBayes.vcf O=${pathBase}/freeBayes.fixed.vcf
+  ${VT_EXE} normalize ${pathBase}/freeBayes.fixed.vcf -o ${pathBase}/freeBayesNorm.vcf -r ${REF}
+  vcffilter -f "QUAL > 25" ${pathBase}/freeBayesNorm.vcf > ${pathBase}/freeBayesNormFilt.unsorted.vcf
+  bcftools sort ${pathBase}/freeBayesNormFilt.unsorted.vcf -O v -o ${pathBase}/freeBayesNormFilt.vcf
+  rm ${pathBase}/freeBayes.fixed.vcf*
+  rm ${pathBase}/freeBayesNorm.vcf* #remove normalized unfiltered vcf  
+  rm ${pathBase}/freeBayesNormFilt.unsorted.vcf*
 fi
 
 if [[ $v -eq true ]]
 then
-  vt normalize ${pathBase}/vardict.vcf -o ${pathBase}/vardictNorm.vcf -r ${REF}
-  vcffilter -f "QUAL > 25" ${pathBase}/vardictNorm.vcf > ${pathBase}/vardictNormFilt.vcf
-  rm ${pathBase}/vardictNorm.vcf
+  picard FixVcfHeader I=${pathBase}/vardict.vcf O=${pathBase}/vardict.fixed.vcf
+  ${VT_EXE} normalize ${pathBase}/vardict.fixed.vcf -o ${pathBase}/vardictNorm.vcf -r ${REF}
+  vcffilter -f "QUAL > 25" ${pathBase}/vardictNorm.vcf > ${pathBase}/vardictNormFilt.unsorted.vcf
+  bcftools sort ${pathBase}/vardictNormFilt.unsorted.vcf -O v -o ${pathBase}/vardictNormFilt.vcf
+  rm ${pathBase}/vardict.fixed.vcf*
+  rm ${pathBase}/vardictNorm.vcf*
+  rm ${pathBase}/vardictNormFilt.unsorted.vcf*
 fi
 
 if [[ $g -eq true ]]
 then 
-  vcffilter -f "QUAL > 25" ${pathBase}/gatk.vcf > ${pathBase}/gatkFilt.vcf
+  picard FixVcfHeader I=${pathBase}/gatk.vcf O=${pathBase}/gatk.fixed.vcf
+  vcffilter -f "QUAL > 25" ${pathBase}/gatk.fixed.vcf > ${pathBase}/gatkFilt.unsorted.vcf
+  bcftools sort ${pathBase}/gatkFilt.unsorted.vcf -O v -o ${pathBase}/gatkFilt.vcf
+  rm ${pathBase}/gatk.fixed.vcf*
+  rm ${pathBase}/gatkFilt.unsorted.vcf*
 fi
 
 skip=false
 if [[ $f -eq true ]] && [[ $v -eq true ]] && [[ $g -eq true ]]
 then
   #VCF with all 3 vc results
-  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/vardictNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/all.vcf
+  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/vardictNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/all.vcf COMMENT='freebayes, gatk and vardict'
   if [[ $o -eq true ]]
   then
     skip=true #switch that prevents us from creating every combination of vcf if we're just interested in one results file
@@ -60,13 +101,13 @@ fi
 if [[ $f -eq true ]] && [[ $v -eq true ]] && [[ $skip -eq false ]]
 then
   #VCF with free bayes and vardict
-  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/vardictNormFilt.vcf O=${pathBase}/fbVard.vcf COMMENT='free bayes and vardict'
+  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/vardictNormFilt.vcf O=${pathBase}/fbVard.vcf COMMENT='freebayes and vardict'
 fi
 
 if [[ $f -eq true ]] && [[ $g -eq true ]] && [[ $skip -eq false ]]
 then
   #VCF with free bayes and gatk
-  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/fbGatk.vcf D=${seqDict} COMMENT='free bayes and gatk'
+  picard MergeVcfs I=${pathBase}/freeBayesNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/fbGatk.vcf D=${seqDict} COMMENT='freebayes and gatk'
 fi
 
 if [[ $v -eq true ]] && [[ $g -eq true ]] && [[ $skip -eq false ]]
@@ -75,14 +116,12 @@ then
   picard MergeVcfs I=${pathBase}/vardictNormFilt.vcf I=${pathBase}/gatkFilt.vcf O=${pathBase}/vardGatk.vcf COMMENT='vardict and gatk' D=${seqDict} #must specify the sequence dictionary when combining vardict and gatk vcfs (neither contain that info.)
 fi
 
-if [[ ! -f $trueVCF ]] #if there's no true vcf to compare results to, exit
-then
-  echo $trueVCF 
-  echo "exiting as there is no true VCF to compare to"
-  exit 0
-fi
+#process merged VCFs and compare to ground truth VCF
 
-bgzip ${trueVCF}
+if [[ ! -f ${trueVCF}.gz ]] #check if a .gz file already exists or not
+then
+  bgzip ${trueVCF} #will remove original vcf file
+fi
 bcftools index ${trueVCF}.gz
 
 if [[ $f -eq true ]] && [[ $v -eq true ]] && [[ $g -eq true ]]
