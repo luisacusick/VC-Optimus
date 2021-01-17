@@ -9,7 +9,7 @@ RGPU='SRR000'
 OUTDIR='vc-optimus-output/'
 THREADS=1
 
-while getopts "h:n:r:s:c:t:o:i:l:pl:pu:" option; do
+while getopts "hn:r:s:ct:o:i:l:pl:pu:" option; do
   case ${option} in
    h) 
      echo ""
@@ -76,7 +76,7 @@ fi
 
 if [ ${#SAMPLES[@]} -gt 2 ]
 then 
-  echo "You can only have a maximum of 2 read samples, exiting.."
+  echo "You can have a maximum of 2 read samples, exiting.."
   exit 0
 fi
 
@@ -95,9 +95,17 @@ then
 fi
 
 #create processedSamples in provided output directory
-mkdir ${OUTDIR}/
+if [ ! -d ${OUTDIR} ] # if OUTDIR doesn't exist create it
+then
+  mkdir ${OUTDIR}/
+fi
+
 OUTPATH=${OUTDIR}/processedSamples
-mkdir ${OUTDIR}/processedSamples/ #store non-result intermmediate files here
+
+if [ ! -d "${OUTDIR}/processedSamples" ] # if processedSamples directory doesn't exist create it
+then
+  mkdir ${OUTDIR}/processedSamples/ #store non-result intermediate files here
+fi
 
 if ${CLEAN_NAMES} #If the reads need ".1" and ".2" removed from the ends of their names
 then
