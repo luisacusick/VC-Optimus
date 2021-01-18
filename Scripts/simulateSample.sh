@@ -22,8 +22,13 @@ then
   exit 0
 fi
 
-while getopts "n:r:s:t:o:d:i:l:hp" option; do
-  case ${option} in
+while getopts "n:r:s:t:o:d:i:l:-:hp" option; do
+   if [ "$option" = "-" ]; then
+     option="${OPTARG%%=*}"
+     OPTARG="${OPTARG#$option}"
+     OPTARG="${OPTARG#=}"      # if long option argument, remove assigning `=`
+   fi
+   case ${option} in
    h)echo ""
      echo "Usage: simulateSample.sh -n name -r ref.fa -s read1.fq -s read2.fq [OPTIONS]"
    	 echo ""
@@ -36,9 +41,12 @@ while getopts "n:r:s:t:o:d:i:l:hp" option; do
      echo "-l  [int] Length of simulated sequence reads (default: the mode read length from first -s fastq file)"     
      echo "-t  [int] Number of threads/processors to pass to multi-threaded programs (default: 1)"
      echo "-o  [str] Path to output directory, will be created if it doesn't exist (default: vc-optimus-output/ in working directory)"
-	 echo "-d  [flt] Amount of SNPs to simulate, as a fraction of total genome size (default: 0.01, equivalent to 1% sequence divergence)"
-	 echo "-i  [int] Number of indels to simulate (NOT IMPLEMENTED; default: 0)"
+	   echo "-d  [flt] Amount of SNPs to simulate, as a fraction of total genome size (default: 0.01, equivalent to 1% sequence divergence)"
+	   echo "-i  [int] Number of indels to simulate (NOT IMPLEMENTED; default: 0)"
    	 echo ""
+     echo "---Optional Program-Specific Arguments---"
+     echo "--simuG=[str] List of arguments to pass to simuG, must be quoted. Ex: --simuG=\"-inversion_count 5 -cnv_count 10\""
+     echo "--AFQ=[str] List of arguments to pass to AFQ, must be quoted. Ex: --AFQ=\"-CMP 35 -CSD .1\""
      exit 0;;
   n) SAMPLE_NAME=${OPTARG};;
   r) REF=${OPTARG};;
@@ -49,6 +57,8 @@ while getopts "n:r:s:t:o:d:i:l:hp" option; do
   o) OUTDIR=${OPTARG};;
   d) DIV=${OPTARG};;
   i) INDEL=${OPTARG};;
+  simuG) SIMUG_PARAMS=${OPTARG};;
+  AFQ) AFQ_PARAMS=${OPTARG};;
 esac
 done
 shift "$((OPTIND -1))"
@@ -124,7 +134,7 @@ then
   chars=($(wc -m ${REF})) #counts number of characters in reference genome
   snps=$(echo "(($chars*$DIV)+0.5)/1" | bc) #calculate number of snps, rounded to nearest integer
   echo "Reference genome size: ${chars}bp, generating ${snps} SNPs in simulated genome using simuG.pl.."
-  ${simuG} -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${SAMPLE_NAME} 1>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>${simDir}/${SAMPLE_NAME}.simulateSample.err 
+  ${simuG} -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${SAMPLE_NAME} ${SIMUG_PARAMS} 1>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>${simDir}/${SAMPLE_NAME}.simulateSample.err 
 else
   echo "Skipping simulate genome step with simuG.pl, ${simDir}/${SAMPLE_NAME}.simseq.genome.fa already exists.."
 fi
@@ -141,7 +151,7 @@ then
 	echo "Simulated read length specified as $SIMREAD_LENGTH"
   fi
   START=$(head -1 ${simDir}/${SAMPLE_NAME}.simseq.genome.fa)
-  java -jar ${ArtificialFastqGenerator} -O ${simDir}/${SAMPLE_NAME}.simseq.reads -R ${simDir}/${SAMPLE_NAME}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} -RL ${SIMREAD_LENGTH} 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err
+  java -jar ${ArtificialFastqGenerator} -O ${simDir}/${SAMPLE_NAME}.simseq.reads -R ${simDir}/${SAMPLE_NAME}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} -RL ${SIMREAD_LENGTH} ${AFQ_PARAMS} 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err 
 else
   echo "Skipping ArtificialFastqSimulator.jar step, ${simDir}/${SAMPLE_NAME}.simseq.reads.1.fastq already exists.."
 fi
