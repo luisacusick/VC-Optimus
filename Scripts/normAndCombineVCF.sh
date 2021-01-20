@@ -5,6 +5,8 @@ v=false
 f=false
 o=false
 
+trueVCF=false
+
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" 
 
 configFile=$(dirname $(dirname $(readlink -f "$0")))/config/paths.config # source config file with path to executables here
@@ -46,17 +48,24 @@ esac
 done
 shift "$((OPTIND -1))"
 
-
 #echo "SEQ DICT ${seqDict}"
 pathBase=${DIR}/vcfs
 
-if [[ ! -f $trueVCF ]] && [[ ! -f ${trueVCF}.gz ]] #if there's no true vcf, or its gz compressed version, to compare results to, exit
+if [[ ! -f ${REF}  ]]; then 
+  echo "${REF}, the reference sequence, does not exist, exiting.."
+  exit 0
+fi
+
+if [[ ! -d ${DIR}/vcfs ]]; then
+  echo "${DIR}/vcfs, the vcf directory, does not exist, exiting.."
+  exit 0
+fi
+
+if [[ ! -f ${trueVCF} ]] && [[ ! ${trueVCF} == true ]] #if there's no true vcf, or its gz compressed version, to compare results to, exit
 then
   echo "$trueVCF, the ground truth vcf, does not exist, exiting.."
   exit 0
 fi
-
-#Don't have to normalize gatk vcfs because they are written in normalized form
 
 if [[ $f -eq true ]]
 then

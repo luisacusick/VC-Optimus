@@ -109,7 +109,8 @@ fi
 echo "Combining VCF files from simulated read variant calling using normAndCombineVCF.sh.."
 DICT=$(echo "${REF%.*}").dict 
 
-#TODO: modify call to normAndCombine to work for simulateSample calls to runVCs and cmd line calls to runVCs
+if [ "${NORM}" = false ] ; then # exit if user does not set normalize flag
+  exit 0
+fi
 
 ${scriptDir}/normAndCombineVCF.sh -d ${OUT} -r ${REF} -c ${TRUE_VCF} -s ${DICT} -o ${OUT}/${SAMPLE_NAME}.result_summary.txt -g true -v true -f true 1>>${OUT}/${SAMPLE_NAME}.simulateSample.log 2>>${OUT}/${SAMPLE_NAME}.simulateSample.err
-
