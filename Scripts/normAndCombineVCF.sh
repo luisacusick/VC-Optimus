@@ -4,15 +4,17 @@ g=false
 v=false
 f=false
 o=false
-VT_EXE='/users/PAS1046/osu9029/analyses/optimus/reads-to-variants/Scripts/vt-0.5772/vt' #indicate path to vt here
+
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" 
+
+configFile=$(dirname $(dirname $(readlink -f "$0")))/config/paths.config # source config file with path to executables here
+source ${configFile} 
 
 if [[ ! -f ${VT_EXE} ]]
 then
   echo "Error: cannot find the vt executable file; please specify its location in the header of this script, exiting.. "
   exit 0
 fi
-
 
 while getopts "c:r:s:d:o:g:v:f:h" option; do
   case ${option} in
@@ -22,7 +24,6 @@ while getopts "c:r:s:d:o:g:v:f:h" option; do
      echo "---Required---"
      echo "-r  [str] Path to reference genome fasta file"
      echo "-d  [str] Path to analysis directory; must contain directory 'vcfs'"
-     echo "-c  [str] Path to ground truth simulated vcf file"
      echo "-s  [str] Path to reference sequence dictionary"
      echo "-o  [str] Path to output vcf file"
    	 echo ""
@@ -30,6 +31,7 @@ while getopts "c:r:s:d:o:g:v:f:h" option; do
      echo "-f  [bln] includes freebayes (default: false)"
      echo "-g  [bln] includes gatk (default: false)"
      echo "-v  [bln] includes vardict (default: false)"
+     echo "-c  [str] Path to ground truth simulated vcf file"
    	 echo ""
      exit 0;;
   d) DIR=${OPTARG};; #VC-optimus output directory. must contain folder "vcfs" 
@@ -122,7 +124,8 @@ if [[ ! -f ${trueVCF}.gz ]] #check if a .gz file already exists or not
 then
   bgzip ${trueVCF} #will remove original vcf file
 fi
-bcftools index ${trueVCF}.gz
+
+bcftools index ${trueVCF}.gz # index the true vcf
 
 if [[ $f -eq true ]] && [[ $v -eq true ]] && [[ $g -eq true ]]
 then

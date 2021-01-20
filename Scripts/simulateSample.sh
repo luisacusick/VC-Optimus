@@ -10,13 +10,13 @@ scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )" #a
 configFile=$(dirname $(dirname $(readlink -f "$0")))/config/paths.config
 source ${configFile}
 
-if [[ ! -f ${simuG} ]]
+if [[ ! -f ${SIMUG_EXE} ]]
 then
   echo "Error: cannot find the simuG.pl executable file; please specify its location in the config file, exiting.. "
   exit 0
 fi
 
-if [[ ! -f ${ArtificialFastqGenerator} ]]
+if [[ ! -f ${AFQ_EXE} ]]
 then
   echo "Error: cannot find the ArtificialFastqGenerator.jar executable file; please specify its location in the config file, exiting.. "
   exit 0
@@ -134,7 +134,7 @@ then
   chars=($(wc -m ${REF})) #counts number of characters in reference genome
   snps=$(echo "(($chars*$DIV)+0.5)/1" | bc) #calculate number of snps, rounded to nearest integer
   echo "Reference genome size: ${chars}bp, generating ${snps} SNPs in simulated genome using simuG.pl.."
-  ${simuG} -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${SAMPLE_NAME} ${SIMUG_PARAMS} 1>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>${simDir}/${SAMPLE_NAME}.simulateSample.err 
+  ${SIMUG_EXE} -refseq ${REF} -snp_count ${snps} -prefix ${simDir}/${SAMPLE_NAME} ${SIMUG_PARAMS} 1>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>${simDir}/${SAMPLE_NAME}.simulateSample.err 
 else
   echo "Skipping simulate genome step with simuG.pl, ${simDir}/${SAMPLE_NAME}.simseq.genome.fa already exists.."
 fi
@@ -151,7 +151,7 @@ then
 	echo "Simulated read length specified as $SIMREAD_LENGTH"
   fi
   START=$(head -1 ${simDir}/${SAMPLE_NAME}.simseq.genome.fa)
-  java -jar ${ArtificialFastqGenerator} -O ${simDir}/${SAMPLE_NAME}.simseq.reads -R ${simDir}/${SAMPLE_NAME}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} -RL ${SIMREAD_LENGTH} ${AFQ_PARAMS} 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err 
+  java -jar ${AFQ_EXE} -O ${simDir}/${SAMPLE_NAME}.simseq.reads -R ${simDir}/${SAMPLE_NAME}.simseq.genome.fa -F1 ${SAMPLES[0]} -F2 ${SAMPLES[1]} -URQS true -SE true -S ${START} -RL ${SIMREAD_LENGTH} ${AFQ_PARAMS} 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err 
 else
   echo "Skipping ArtificialFastqSimulator.jar step, ${simDir}/${SAMPLE_NAME}.simseq.reads.1.fastq already exists.."
 fi
@@ -167,9 +167,4 @@ fi
 
 #run all variant callers on simulated reads; runVC.sh will check if .vcf files already exist for each variant caller, and will skip that step if they do
 echo "Running GATK, Vardict, and FreeBayes variant callers on simulated read samples using runVCs.sh.."
-${scriptDir}/runVCs.sh -t ${THREADS} -r ${REF} -b ${simDir}/processedSamples/${SAMPLE_NAME}.alnFinal.bam -o ${simDir} -g true -v true -f true 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err
-
-#combine VCF files from all simulated reads
-echo "Combining VCF files from simulated read variant calling using normAndCombineVCF.sh.."
-DICT=$(echo "${REF%.*}").dict 
-${scriptDir}/normAndCombineVCF.sh -d ${simDir} -r ${REF} -c ${simDir}/${SAMPLE_NAME}.refseq2simseq.SNP.vcf -s ${DICT} -o ${simDir}/${SAMPLE_NAME}.result_summary.txt -g true -v true -f true 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err
+${scriptDir}/runVCs.sh -t ${THREADS} -n ${SAMPLE_NAME} -r ${REF} -b ${simDir}/processedSamples/${SAMPLE_NAME}.alnFinal.bam -o ${simDir} -g true -v true -f true 1>>${simDir}/${SAMPLE_NAME}.simulateSample.log 2>>${simDir}/${SAMPLE_NAME}.simulateSample.err
