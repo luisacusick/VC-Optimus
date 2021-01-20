@@ -84,10 +84,10 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 5. Run the optimal combination of variant callers on your real data set
 
 ```bash
-./callVariants.sh -r <reference> -b <bam file> -o <output directory> -g (include gatk) -f (include free bayes) -v (include vardict) -a (include all)
+./runVCs.sh -r <reference> -b <bam file> -o <output directory> -g (include gatk) -f (include free bayes) -v (include vardict) [OPTIONS]
 ```
    * default output directory is 'snpResults.' program will create the directory if it does not already exist.
-   * the flags g, f, and v include gatk, free bayes, and vardict in the analysis. -a includes all variant callers
+   * the flags g, f, and v include gatk, free bayes, and vardict in the analysis.
    * the flag -n normalizes (as per GATK vcf rules) and combines variants from the selected methods into one vcf
       
 **References**
