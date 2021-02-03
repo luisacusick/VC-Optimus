@@ -21,12 +21,13 @@ while getopts "c:r:b:o:t:-:n:hgvf" option; do
   fi
   case ${option} in
   h) echo ""
-     echo "Usage: runVCs.sh -r ref.fa -b sample.bam -o output.directory [OPTIONS]"
+     echo "Usage: runVCs.sh -r ref.fa -b sample.bam -o output.directory -n sample1 [OPTIONS]"
    	 echo ""
      echo "---Required---"
      echo "-r  [str] Path to reference genome fasta file"
      echo "-b  [str] Path to mapped sample.bam file"
      echo "-o  [str] Path to output directory"
+     echo "-n  [str] Sample name"
    	 echo ""
      echo "---Optional---"
      echo "-f  [no arg] includes freebayes (default: false)"
@@ -66,15 +67,18 @@ fi
 
 if [[ ! -d ${OUT} ]]
 then
-  echo "mapped sample.bam not found, exiting.."
+  echo "Output directory not found, exiting.."
   exit 0
 fi
 
-
-mkdir ${OUT}/vcfs #create a vcf directory 
+if [[ ! -f ${OUT} ]]
+then
+  mkdir ${OUT}/vcfs #create a vcf directory 
+  echo "Created directory ${OUT}/vcfs"
+fi
 
 if [ "$GATK" = true ] ; then 
-  if [ ! -f ${OUT}/vcfs/gatk.vcf ]
+  if [[ ! -f ${OUT}/vcfs/gatk.vcf ]]
   then
      ${GATK_EXE} HaplotypeCaller -R ${REF} -I ${BAM} -O ${OUT}/vcfs/gatk.vcf --native-pair-hmm-threads ${THREADS} ${GATK_PARAMS}
   else
@@ -83,12 +87,13 @@ if [ "$GATK" = true ] ; then
 fi
 
 if [ "$VARDICT" = true ] ; then
-  if [ ! -f ${OUT}/vcfs/vardict.vcf ]
+  if [[ ! -f ${OUT}/vcfs/vardict.vcf ]]
   then
      python ${scriptDir}/createBed.py ${REF} ${OUT}/vcfs/ref.bed
      sampleName="$(samtools view -H ${BAM} | grep '^@RG' | sed "s/.*SM:\([^\t]*\).*/\1/g" | uniq)"
      BED=${OUT}/vcfs/ref.bed
      ${VARDICT_EXE} -U -G ${REF} -f .01 -b ${BAM} -c 1 -S 2 -E 3 -g 4 ${BED} -N ${sampleName} -th ${THREADS} | teststrandbias.R | var2vcf_valid.pl -E -N ${sampleName} > ${OUT}/vcfs/vardict.temp.vcf
+     echo 'here'
      gatk UpdateVCFSequenceDictionary -V ${OUT}/vcfs/vardict.temp.vcf -R ${REF} --output ${OUT}/vcfs/vardict.vcf #add sequence dictionary to vardict vcf header
      rm ${OUT}/vcfs/vardict.temp.vcf
  else
