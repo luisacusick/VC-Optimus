@@ -39,8 +39,8 @@ vc-optimus-output/ <--Top-level output directory name, set to vc-optimus-output 
 
 **Before starting:**
 
-   * the reference genome should ideally be named <genome code>.fasta
-   * input fastq files should already be quality checked and trimmed, and unzipped 
+   * the reference genome should be named <genome code>.fasta
+   * input fastq files should already be quality checked, trimmed, and unzipped 
    * <insert advice about how to combine read libraries here for error profiling, is it a simple cat?>
    * insert the path to the gatk<sup>2</sup> executable where indicated at the top of the runVCs.sh script
    * insert the path to the vt<sup>3</sup> executable where indicated at the top of the normAndCombineVcfs.sh script
@@ -68,7 +68,7 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 
    For paired end reads:
 ```bash
-./processSample.sh -n name -r ref.fa -s read1.fq -s read2.fq [OPTIONS]
+./processSample.sh -n sample-name -r ref.fa -s read1.fq -s read2.fq [OPTIONS]
 ```
    * Normalizes read names, aligns reads to reference, and pre-processes data for variant calling (sorting BAM, adding read group names, marking duplicates, and indexing)
    
@@ -79,7 +79,7 @@ export PERL5LIB=~/.conda/envs/VC-optimus/lib/5.26.2/
 ```
    * Simulates a genome with desired sequence divergence from reference (thus generating known variants), and then simulates sequence reads from that genome using error profiles sampled from the real read dataset. Simulated reads are processed and aligned back to the reference, and subsequently analyzed using the variant calling software gatk, Free Bayes, and VarDict (called variants). Outputs a table and figure describing each methods' sensitivity, positive predictive value (PPV), and F1 score (the avg. of sensitivity and ppv, calculated as 2*(sensitivity * ppv)/(sensitivity + ppv) either singly or in combination
    * default divergence proportion is .01 (means 1% of the nucleotide sites in the simulated genome will be different from the reference)
-   * creates a directory called 'simulatedSamples' in vc-optimus-output/, or in user-specified output directory 
+   * creates a directory called 'simulatedSamples' in vc-optimus-output/, or in user-specified output directory
   
 5. Run the optimal combination of variant callers on your real data set
 
