@@ -15,8 +15,8 @@ Population genetic analyses typically begin by identifying genetic variants in a
 **Conda installation for all remaining dependencies<sup>6</sup><sup>,7</sup><sup>,8</sup><sup>,9</sup><sup>,10</sup><sup>,11</sup>:**
 
 ```bash
-git clone https://github.com/luisacusick/reads-to-variants.git
-cd reads-to-variants/
+git clone https://github.com/luisacusick/VC-Optimus.git
+cd VC-Optimus/
 chmod 755 Scripts/*
 conda env create -f environment.yml
 ```
